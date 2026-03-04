@@ -3,7 +3,8 @@
   "name": "Claude Search",
   "version": "1.0.0",
   "description": "Use Claude.ai as your default search engine. Type 'cl' in the address bar followed by your query.",
-  "permissions": ["clipboardWrite", "clipboardRead"],
+  "permissions": ["clipboardWrite", "clipboardRead", "storage"],
+  "options_page": "options.html",
   "omnibox": {
     "keyword": "cl"
   },
