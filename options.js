@@ -17,12 +17,26 @@ chrome.storage.sync.get({ mode: 'new', conversationUrl: '' }, (data) => {
   urlInput.disabled = data.mode !== 'pinned';
 });
 
+function isValidClaudeUrl(url) {
+  return /^https:\/\/claude\.ai\/chat\/[a-zA-Z0-9-]+$/.test(url);
+}
+
 // Save settings
 saveBtn.addEventListener('click', () => {
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const conversationUrl = urlInput.value.trim();
 
+  if (mode === 'pinned' && !isValidClaudeUrl(conversationUrl)) {
+    status.textContent = 'Invalid URL — must be https://claude.ai/chat/...';
+    status.style.color = '#dc2626';
+    status.classList.add('show');
+    setTimeout(() => status.classList.remove('show'), 3000);
+    return;
+  }
+
   chrome.storage.sync.set({ mode, conversationUrl }, () => {
+    status.textContent = 'Saved!';
+    status.style.color = '#16a34a';
     status.classList.add('show');
     setTimeout(() => status.classList.remove('show'), 1500);
   });
