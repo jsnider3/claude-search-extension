@@ -27,7 +27,7 @@ saveBtn.addEventListener('click', () => {
   const conversationUrl = urlInput.value.trim();
 
   if (mode === 'pinned' && !isValidClaudeUrl(conversationUrl)) {
-    status.textContent = 'Invalid URL — must be https://claude.ai/chat/...';
+    status.textContent = 'Invalid URL - must be https://claude.ai/chat/...';
     status.style.color = '#dc2626';
     status.classList.add('show');
     setTimeout(() => status.classList.remove('show'), 3000);
