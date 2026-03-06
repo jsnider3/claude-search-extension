@@ -1,5 +1,6 @@
 const modeRadios = document.querySelectorAll('input[name="mode"]');
 const urlInput = document.getElementById('conversationUrl');
+const autoSubmitCheckbox = document.getElementById('autoSubmit');
 const saveBtn = document.getElementById('save');
 const status = document.getElementById('status');
 
@@ -11,10 +12,11 @@ modeRadios.forEach(radio => {
 });
 
 // Load saved settings
-chrome.storage.sync.get({ mode: 'new', conversationUrl: '' }, (data) => {
+chrome.storage.sync.get({ mode: 'new', conversationUrl: '', autoSubmit: true }, (data) => {
   document.querySelector(`input[name="mode"][value="${data.mode}"]`).checked = true;
   urlInput.value = data.conversationUrl;
   urlInput.disabled = data.mode !== 'pinned';
+  autoSubmitCheckbox.checked = data.autoSubmit;
 });
 
 function isValidClaudeUrl(url) {
@@ -25,6 +27,7 @@ function isValidClaudeUrl(url) {
 saveBtn.addEventListener('click', () => {
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const conversationUrl = urlInput.value.trim();
+  const autoSubmit = autoSubmitCheckbox.checked;
 
   if (mode === 'pinned' && !isValidClaudeUrl(conversationUrl)) {
     status.textContent = 'Invalid URL - must be https://claude.ai/chat/...';
@@ -34,7 +37,7 @@ saveBtn.addEventListener('click', () => {
     return;
   }
 
-  chrome.storage.sync.set({ mode, conversationUrl }, () => {
+  chrome.storage.sync.set({ mode, conversationUrl, autoSubmit }, () => {
     status.textContent = 'Saved!';
     status.style.color = '#16a34a';
     status.classList.add('show');

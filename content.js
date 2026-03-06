@@ -10,7 +10,6 @@
   const cleanUrl = window.location.origin + window.location.pathname;
   window.history.replaceState({}, '', cleanUrl);
   
-  const AUTO_SUBMIT = true;
   const MAX_ATTEMPTS = 50;
   const RETRY_INTERVAL = 200;
   
@@ -147,19 +146,19 @@
     return null;
   }
   
-  async function attemptFillAndSubmit() {
+  async function attemptFillAndSubmit(autoSubmit) {
     const editor = findEditor();
     if (!editor) return false;
-    
+
     const filled = await fillEditor(editor, query);
     if (!filled) {
       console.warn('Claude Search: Failed to fill editor');
       return false;
     }
-    
+
     console.log('Claude Search: Editor filled, waiting for button...');
-    
-    if (AUTO_SUBMIT) {
+
+    if (autoSubmit) {
       const button = await waitForButtonEnabled();
       if (button) {
         console.log('Claude Search: Clicking submit');
@@ -168,32 +167,34 @@
         console.warn('Claude Search: Submit button never enabled');
       }
     }
-    
+
     return true;
   }
-  
-  // Main loop
-  let attempts = 0;
-  
-  async function tryFill() {
-    attempts++;
-    console.log(`Claude Search: Attempt ${attempts}`);
-    
-    const success = await attemptFillAndSubmit();
-    
-    if (!success && attempts < MAX_ATTEMPTS) {
-      setTimeout(tryFill, RETRY_INTERVAL);
+
+  // Read settings and start
+  chrome.storage.sync.get({ autoSubmit: true }, (data) => {
+    const autoSubmit = data.autoSubmit;
+    let attempts = 0;
+
+    async function tryFill() {
+      attempts++;
+      console.log(`Claude Search: Attempt ${attempts}`);
+
+      const success = await attemptFillAndSubmit(autoSubmit);
+
+      if (!success && attempts < MAX_ATTEMPTS) {
+        setTimeout(tryFill, RETRY_INTERVAL);
+      }
     }
-  }
-  
-  // Start after page loads
-  function start() {
-    setTimeout(tryFill, 800);
-  }
-  
-  if (document.readyState === 'complete') {
-    start();
-  } else {
-    window.addEventListener('load', start);
-  }
+
+    function start() {
+      setTimeout(tryFill, 800);
+    }
+
+    if (document.readyState === 'complete') {
+      start();
+    } else {
+      window.addEventListener('load', start);
+    }
+  });
 })();

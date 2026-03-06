@@ -19,12 +19,12 @@ Example: `cl why is the sky blue`
 
 This opens a new Claude.ai conversation with your query automatically submitted.
 
-## Configuration
+## Settings
 
-Edit `content.js` to change behavior:
+Right-click the extension icon and select **Options**, or go to `chrome://extensions` and click **Details > Extension options**.
 
-- `AUTO_SUBMIT = true` — automatically sends the message (default)
-- `AUTO_SUBMIT = false` — fills in the text but waits for you to review/send
+- **New conversation / Pinned conversation** — choose whether each query opens a new chat or goes to a specific conversation
+- **Auto-submit query** — when enabled (default), the query is sent automatically; when disabled, it fills the input but waits for you to review
 
 ## Troubleshooting
 
@@ -39,7 +39,7 @@ Edit `content.js` to change behavior:
 ## How It Works
 
 1. The extension registers `cl` as an omnibox keyword
-2. When you enter a query, it opens `claude.ai/new` with a special URL parameter
+2. When you enter a query, it opens `claude.ai/new` (or a pinned conversation) with a special URL parameter
 3. A content script detects that parameter and injects your text into Claude's input
 4. If auto-submit is enabled, it clicks the send button
 
