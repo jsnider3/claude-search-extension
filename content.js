@@ -1,15 +1,6 @@
 // Content script to inject query into Claude's chat input
 
 (function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const query = urlParams.get('claude_search_query');
-  
-  if (!query) return;
-  
-  // Clean up the URL
-  const cleanUrl = window.location.origin + window.location.pathname;
-  window.history.replaceState({}, '', cleanUrl);
-  
   const MAX_ATTEMPTS = 50;
   const RETRY_INTERVAL = 200;
   
@@ -146,7 +137,7 @@
     return null;
   }
   
-  async function attemptFillAndSubmit(autoSubmit) {
+  async function attemptFillAndSubmit(query, autoSubmit) {
     const editor = findEditor();
     if (!editor) return false;
 
@@ -171,30 +162,35 @@
     return true;
   }
 
-  // Read settings and start
-  chrome.storage.sync.get({ autoSubmit: true }, (data) => {
-    const autoSubmit = data.autoSubmit;
-    let attempts = 0;
+  // Ask background script for pending query
+  chrome.runtime.sendMessage({ type: 'getPendingQuery' }, (response) => {
+    const query = response && response.query;
+    if (!query) return;
 
-    async function tryFill() {
-      attempts++;
-      console.log(`Claude Search: Attempt ${attempts}`);
+    chrome.storage.sync.get({ autoSubmit: true }, (data) => {
+      const autoSubmit = data.autoSubmit;
+      let attempts = 0;
 
-      const success = await attemptFillAndSubmit(autoSubmit);
+      async function tryFill() {
+        attempts++;
+        console.log(`Claude Search: Attempt ${attempts}`);
 
-      if (!success && attempts < MAX_ATTEMPTS) {
-        setTimeout(tryFill, RETRY_INTERVAL);
+        const success = await attemptFillAndSubmit(query, autoSubmit);
+
+        if (!success && attempts < MAX_ATTEMPTS) {
+          setTimeout(tryFill, RETRY_INTERVAL);
+        }
       }
-    }
 
-    function start() {
-      setTimeout(tryFill, 800);
-    }
+      function start() {
+        setTimeout(tryFill, 800);
+      }
 
-    if (document.readyState === 'complete') {
-      start();
-    } else {
-      window.addEventListener('load', start);
-    }
+      if (document.readyState === 'complete') {
+        start();
+      } else {
+        window.addEventListener('load', start);
+      }
+    });
   });
 })();

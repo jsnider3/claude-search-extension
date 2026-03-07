@@ -1,13 +1,16 @@
+let pendingQuery = null;
+
 // Handle omnibox input
 chrome.omnibox.onInputEntered.addListener((text, disposition) => {
   chrome.storage.sync.get({ mode: 'new', conversationUrl: '' }, (data) => {
     let url;
     if (data.mode === 'pinned' && data.conversationUrl) {
-      const base = data.conversationUrl.split('?')[0];
-      url = `${base}?claude_search_query=${encodeURIComponent(text)}`;
+      url = data.conversationUrl.split('?')[0];
     } else {
-      url = `https://claude.ai/new?claude_search_query=${encodeURIComponent(text)}`;
+      url = 'https://claude.ai/new';
     }
+
+    pendingQuery = text;
 
     switch (disposition) {
       case "currentTab":
@@ -21,6 +24,14 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
         break;
     }
   });
+});
+
+// Respond to content script requesting the pending query
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'getPendingQuery') {
+    sendResponse({ query: pendingQuery });
+    pendingQuery = null;
+  }
 });
 
 // Provide suggestions as user types (optional enhancement)
