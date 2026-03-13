@@ -32,6 +32,10 @@ Right-click the extension icon and select **Options**, or go to `chrome://extens
 - Make sure you're logged into claude.ai
 - The page may have updated its structure; check the browser console for errors
 
+**Query appears in text box but doesn't submit:**
+- This can happen if the page takes too long to fully load
+- Just press Enter to send it manually
+
 **Extension not working:**
 - Verify the extension is enabled in `chrome://extensions/`
 - Try reloading the extension

@@ -124,17 +124,36 @@
     return editor.textContent.trim().length > 0;
   }
   
-  async function waitForButtonEnabled(maxWait = 3000) {
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < maxWait) {
+  function waitForButtonEnabled(maxWait = 10000) {
+    return new Promise((resolve) => {
+      // Check if already available
       const button = findSubmitButton();
       if (button && !button.disabled) {
-        return button;
+        resolve(button);
+        return;
       }
-      await new Promise(r => setTimeout(r, 100));
-    }
-    return null;
+
+      const timeout = setTimeout(() => {
+        observer.disconnect();
+        resolve(null);
+      }, maxWait);
+
+      const observer = new MutationObserver(() => {
+        const btn = findSubmitButton();
+        if (btn && !btn.disabled) {
+          observer.disconnect();
+          clearTimeout(timeout);
+          resolve(btn);
+        }
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['disabled', 'aria-label']
+      });
+    });
   }
   
   async function attemptFillAndSubmit(query, autoSubmit) {
