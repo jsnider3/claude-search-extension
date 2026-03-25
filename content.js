@@ -168,6 +168,7 @@
       return false;
     }
 
+    editor.scrollIntoView({ behavior: 'instant', block: 'end' });
     console.log('Claude Search: Editor filled, waiting for button...');
 
     if (autoSubmit) {
@@ -203,15 +204,7 @@
         }
       }
 
-      function start() {
-        setTimeout(tryFill, 800);
-      }
-
-      if (document.readyState === 'complete') {
-        start();
-      } else {
-        window.addEventListener('load', start);
-      }
+      tryFill();
     });
   });
 })();
