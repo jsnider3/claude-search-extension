@@ -1,3 +1,5 @@
+// Copyright © 2026 Joshua Snider. All rights reserved.
+
 let pendingQuery = null;
 
 // Handle omnibox input

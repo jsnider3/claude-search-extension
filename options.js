@@ -1,3 +1,5 @@
+// Copyright © 2026 Joshua Snider. All rights reserved.
+
 const modeRadios = document.querySelectorAll('input[name="mode"]');
 const urlInput = document.getElementById('conversationUrl');
 const autoSubmitCheckbox = document.getElementById('autoSubmit');

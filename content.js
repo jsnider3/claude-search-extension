@@ -1,3 +1,5 @@
+// Copyright © 2026 Joshua Snider. All rights reserved.
+
 // Content script to inject query into Claude's chat input
 
 (function() {
