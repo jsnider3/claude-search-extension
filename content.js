@@ -191,6 +191,23 @@
 
     chrome.storage.sync.get({ autoSubmit: true }, (data) => {
       const autoSubmit = data.autoSubmit;
+      const urlQuery = new URLSearchParams(location.search).get('q');
+
+      // New-chat mode: claude.ai pre-fills the editor from ?q=, we only need to submit.
+      if (urlQuery === query) {
+        if (!autoSubmit) return;
+        waitForButtonEnabled().then((button) => {
+          if (button) {
+            console.log('Claude Search: Clicking submit (URL-prefill path)');
+            button.click();
+          } else {
+            console.warn('Claude Search: Submit button never enabled');
+          }
+        });
+        return;
+      }
+
+      // Pinned-conversation mode: fill the editor ourselves.
       let attempts = 0;
 
       async function tryFill() {

@@ -9,7 +9,7 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
     if (data.mode === 'pinned' && data.conversationUrl) {
       url = data.conversationUrl.split('?')[0];
     } else {
-      url = 'https://claude.ai/new';
+      url = `https://claude.ai/new?q=${encodeURIComponent(text)}`;
     }
 
     pendingQuery = text;
